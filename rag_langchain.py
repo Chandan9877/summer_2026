@@ -5,10 +5,11 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
-
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 load_dotenv()
 
-PDF_PATH = "data/Black and White Simple Business School Graduate Corporate Resume.pdf"
+PDF_PATH = "Tutorial%2014%20Unit%205.pdf"
 print("Loading and splitting the pdf.....")
 
 loader = PyPDFLoader(PDF_PATH)
@@ -40,3 +41,8 @@ prompt = ChatPromptTemplate.from_messages([
     ("system",system_prompt),
     ("user",{input})
 ])
+
+def format_doc(docs):
+    return "/n/n".joint(docs.page_content)
+
+rag_chain = {"context" : retriver | format_doc , "input" : RunnablePassthrough()} | prompt | llm | StrOutputParser()
